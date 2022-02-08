@@ -8,6 +8,10 @@ import javafx.stage.Stage;
 
 
 public class Main extends Application {
+	
+	//Guarda a referencia da scene
+	private static Scene mainScene;
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -19,13 +23,17 @@ public class Main extends Application {
 			scrollPane.setFitToWidth(true);
 			// Ajuste de Vbox no ScrollPane - 740fernando - 2022,jan 07 - fim
 			
-			Scene mainScene = new Scene(scrollPane);
+			mainScene = new Scene(scrollPane);
 			primaryStage.setScene(mainScene);
 			primaryStage.setTitle("Sample JavaFx application");
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static Scene getMainScene() {
+		return mainScene;
 	}
 	
 	public static void main(String[] args) {
