@@ -33,7 +33,7 @@ public class MainViewController implements Initializable {
 	}
 	@FXML
 	public void onMenuItemDepartmentAction() {
-		System.out.println("onMenuItemDepartmentAction");
+		loadView("/gui/DepartmentList.fxml");
 	}
 	@FXML
 	public void onMenuItemAboutAction() {
@@ -44,9 +44,10 @@ public class MainViewController implements Initializable {
 	public void initialize(URL uri, ResourceBundle rb) {
 	}
 	/*
+	 * synchronized - Garente que o processamento não será interrompido por algum comportamento multithread
 	 * loadView - método responsável por manipular a scena principal
 	 */
-	private void loadView(String absoluteName) {
+	private synchronized void loadView(String absoluteName) {
 		
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
