@@ -15,6 +15,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import model.services.DepartmentService;
 
 public class MainViewController implements Initializable {
 
@@ -33,7 +34,7 @@ public class MainViewController implements Initializable {
 	}
 	@FXML
 	public void onMenuItemDepartmentAction() {
-		loadView("/gui/DepartmentList.fxml");
+		loadView2("/gui/DepartmentList.fxml");
 	}
 	@FXML
 	public void onMenuItemAboutAction() {
@@ -74,6 +75,42 @@ public class MainViewController implements Initializable {
 			
 			//Adiciona a coleção - Os filhos do new Vbox
 			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+		} catch (IOException e) {
+			Alerts.showAlert("IO Exception","Error loading view", e.getMessage(), AlertType.ERROR);
+		}
+	}
+private synchronized void loadView2(String absoluteName) {
+		
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			VBox newVBox = loader.load();
+			
+			// Pega a referencia da scene do main
+			Scene mainScene = Main.getMainScene();
+			
+			
+			//getRoot() - obtem o primeiro elemento da view(ScrolLPane);
+			//getContent() - Dentro do MainView.fxml, tem um elemento chamado content, é utilizado esse método para pode acessar
+			VBox mainVBox =(VBox) ((ScrollPane) mainScene.getRoot()).getContent(); // Obtém a referencia do scroll pane e joga para o Vbox
+			
+			//Vou guardar uma referencia para o menu
+			//getChildren() - obtém os Filhos do Vbox
+			//get(0) - Primeiro filho do Vbox da janela principal(mainMenu)
+			Node mainMenu = mainVBox.getChildren().get(0); 
+			
+			//limpa todos os filhos do VBox
+			mainVBox.getChildren().clear();
+			
+			//Adiciona o menu
+			mainVBox.getChildren().add(mainMenu);
+			
+			//Adiciona a coleção - Os filhos do new Vbox
+			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+			DepartmentListController controller = loader.getController(); // loader.getController() acessa o COntroller e instancia para DepartmentListController
+			controller.setDepartmentService(new DepartmentService()); // processo manual de injeção de dependencia no controller
+			controller.updateTableView(); //atualiza os dados na tela
 			
 		} catch (IOException e) {
 			Alerts.showAlert("IO Exception","Error loading view", e.getMessage(), AlertType.ERROR);
