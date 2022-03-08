@@ -47,7 +47,8 @@ public class DepartmentListController implements Initializable {
 	@FXML
 	public void onBtNewAction(ActionEvent event) {
 		Stage parentStage = utils.currentStage(event);
-		createDialogForm("/gui/DepartmentForm.fxml", parentStage);
+		Department obj = new Department();
+		createDialogForm(obj,"/gui/DepartmentForm.fxml", parentStage);
 	}
 	
 	public void setDepartmentService(DepartmentService service) {
@@ -84,14 +85,19 @@ public class DepartmentListController implements Initializable {
 	/**
 	 * Função para carregar a janela do formúlario para preenchimento de um novo departamento
 	 * 
-	 * @param absoluteName
-	 * @param parentStage
+	 * @param Department
+	 * @param String
+	 * @param Stage
 	 */
-	private void createDialogForm(String absoluteName, Stage parentStage) {
+	private void createDialogForm(Department obj, String absoluteName, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
 			
+			DepartmentFormController controller = loader.getController();
+			controller.setDepartment(obj);
+			controller.updateFormData();
+		
 			// QUANDO EU VOU CARREGAR UMA JANELA MODAL NA FRENTE DA JANELA EXISTENTE, É NECESSÁRIO CRIAR UM NOVO STAGE
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Enter Department data");
