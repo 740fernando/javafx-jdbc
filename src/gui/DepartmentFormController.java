@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
@@ -22,6 +25,8 @@ public class DepartmentFormController implements Initializable {
 	private Department entity;
 	
 	private DepartmentService service;
+	
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>(); //Armazena os eventos
 	
 	@FXML
 	private TextField txtId;
@@ -45,6 +50,13 @@ public class DepartmentFormController implements Initializable {
 	public void setDepartmentService(DepartmentService service) {
 		this.service=service;
 	}
+	/**
+	 * adiciona o evento
+	 * @param listener
+	 */
+	public void subscribeDataChangeListener(DataChangeListener listener) {
+		dataChangeListeners.add(listener);
+	}
 	
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
@@ -57,12 +69,22 @@ public class DepartmentFormController implements Initializable {
 		try {
 			entity = getFormData();
 			service.saveOrUpdate(entity);
+			notifyDataChangeListeners();
 			Utils.currentStage(event).close();;
 		}catch(DbException e) {
 			Alerts.showAlert("Erro ao salver o objeto", null, e.getMessage(), AlertType.ERROR);
 		}
 			
 	}
+	/**
+	 * Responsável por emetir o evento
+	 */
+	private void notifyDataChangeListeners() {
+		for(DataChangeListener listener : dataChangeListeners) {
+			listener.onDataChanged();
+		}
+	}
+
 	/**
 	 * Responsavel por pegar os dados nas caixinhas do formulario, instanciar o department
 	 * 
