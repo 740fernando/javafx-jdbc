@@ -21,7 +21,7 @@ public class SellerDaoJDBC implements SellerDao {
 
 	private Connection conn;
 
-	public SellerDaoJDBC(Connection seller) {
+	public SellerDaoJDBC(Connection conn) {
 		this.conn = conn;
 	}
 
@@ -119,33 +119,53 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public Seller findById(Integer id) {
-		
-		PreparedStatement st =null;
+
+		PreparedStatement st = null;
 		ResultSet rs = null;
-		
+
 		try {
-			st = conn.prepareStatement("SELECT seller.*, department.Name as DepName"+" From seller INNER JOIN department"
-										+" ON seller.DepartmendId = department.Id"+" WHERE seller.id = ?");
+			st = conn.prepareStatement(
+					"SELECT seller.*, department.Name as DepName" + " From seller INNER JOIN department"
+							+ " ON seller.DepartmendId = department.Id" + " WHERE seller.id = ?");
 			st.setInt(1, id);
 			rs = st.executeQuery();// recebe o resultado da operação executeQuery()
-			
+
 			// O rs aponta para pos. 0 ( null), só na pos. 1 que é armazenado os dados
 			// É chamado a operação next para verificar se há dados na posição 1.
 			// Se minha consulta não retornou nenhum registro, meu rs vai dar falso, pular o
 			// if
 			// e vai retorna null
-			if(rs.next()) {
+			if (rs.next()) {
 				Department dep = instantiateDepartment(rs);
 				Seller seller = instantiateSeller(rs, dep);
 				return seller;
 			}
 			return null;
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}finally {
+		} finally {
 			DB.closeResultSet(rs);
 			DB.closeStatement(st);
 		}
+	}
+
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
+
+		Seller seller = new Seller();
+		seller.setId(rs.getInt("Id"));
+		seller.setName(rs.getString("Name"));
+		seller.setEmail(rs.getString("Email"));
+		seller.setBaseSalary(rs.getDouble("BaseSalary"));
+		seller.setBirthDate(new Date(rs.getTimestamp("BirthDate").getTime()));
+		seller.setDepartment(dep);
+		return seller;
+	}
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("Depname"));
+		return dep;
 	}
 
 	@Override
@@ -156,7 +176,7 @@ public class SellerDaoJDBC implements SellerDao {
 
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department"
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
 							+ "ON seller.DepartmentId = department.Id " + "ORDER BY Name");
 			rs = st.executeQuery();
 
@@ -224,25 +244,4 @@ public class SellerDaoJDBC implements SellerDao {
 			DB.closeResultSet(rs);
 		}
 	}
-
-	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
-
-		Seller seller = new Seller();
-		seller.setId(rs.getInt("Id"));
-		seller.setName(rs.getString("Name"));
-		seller.setEmail(rs.getString("Email"));
-		seller.setBaseSalary(rs.getDouble("BaseSalary"));
-		seller.setBirthDate(rs.getDate("BirthDate"));
-		seller.setDepartment(dep);
-		return seller;
-	}
-
-	private Department instantiateDepartment(ResultSet rs) throws SQLException {
-
-		Department dep = new Department();
-		dep.setId(rs.getInt("DepartmentId"));
-		dep.setName(rs.getString("Depname"));
-		return dep;
-	}
-
 }
