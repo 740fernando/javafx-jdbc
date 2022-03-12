@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class SellerFormController implements Initializable {
 	private Seller entity;
 
 	private SellerService service;
-	
+
 	private DepartmentService departmentService;
 
 	private List<DataChangeListener> dataChangeListeners = new ArrayList<>(); // Armazena os eventos
@@ -59,7 +61,7 @@ public class SellerFormController implements Initializable {
 
 	@FXML
 	private TextField txtBaseSalary;
-	
+
 	@FXML
 	private ComboBox<Department> comboBoxDepartment;
 
@@ -80,7 +82,7 @@ public class SellerFormController implements Initializable {
 
 	@FXML
 	private Button btCancel;
-	
+
 	private ObservableList<Department> obsList;
 
 	public void setSeller(Seller entity) {
@@ -133,9 +135,8 @@ public class SellerFormController implements Initializable {
 	}
 
 	/**
-	 * Responsavel por pegar os dados nas caixinhas do formulario, instanciar o
-	 * Seller
-	 * 
+	 * Responsavel por obter os dados do formulario e instanciar o Seller com esses
+	 * dados.
 	 * 
 	 * @return Seller
 	 */
@@ -150,6 +151,24 @@ public class SellerFormController implements Initializable {
 			exception.addError("name", "Field can't be empty");
 		}
 		obj.setName(txtName.getText());
+
+		if (txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
+			exception.addError("email", "Field can't be empty");
+		}
+		obj.setEmail(txtEmail.getText());
+
+		if (dpBirthDate.getValue() == null) {
+			exception.addError("birthDate", "Field can't be empty");
+		} else {
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+			obj.setBirthDate(Date.from(instant));
+		}
+		if (txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals("")) {
+			exception.addError("baseSalary", "Field can't be empty");
+		}
+		obj.setBaseSalary(Utils.tenteConverterParaDouble(txtBaseSalary.getText()));
+		
+		obj.setDepartment(comboBoxDepartment.getValue());
 
 		if (exception.getErrors().size() > 0) {
 			throw exception;
@@ -183,8 +202,8 @@ public class SellerFormController implements Initializable {
 	}
 
 	/**
-	 * Responsável por obter os dados do objeto 'Seller'
-	 * e preenche o formulário com esses dados
+	 * Responsável por obter os dados do objeto 'Seller' e preenche o formulário com
+	 * esses dados
 	 */
 	public void updateFormData() {
 		if (entity == null) {
@@ -199,21 +218,22 @@ public class SellerFormController implements Initializable {
 		if (entity.getBirthDate() != null) {
 			dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
 		}
-		
+
 		// Preenche o comboBox - inicio
-		if(entity.getDepartment() == null) {
+		if (entity.getDepartment() == null) {
 			comboBoxDepartment.getSelectionModel().selectFirst();
-		}else {
+		} else {
 			comboBoxDepartment.setValue(entity.getDepartment());
 		}
-		// Preenche o comboBox - fim			
+		// Preenche o comboBox - fim
 	}
+
 	/**
-	 * Responsável por chamar o DepartmentService e carregar as informaçoes do banco de dados
-	 * preenchendo a lista com departamentos.
+	 * Responsável por chamar o DepartmentService e carregar as informaçoes do banco
+	 * de dados preenchendo a lista com departamentos.
 	 */
 	public void carregarObjetosAssociados() {
-		if(departmentService==null) {
+		if (departmentService == null) {
 			throw new IllegalStateException("Department was null");
 		}
 		List<Department> list = departmentService.findAll();
@@ -224,20 +244,23 @@ public class SellerFormController implements Initializable {
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
 
-		if (fields.contains("name")) {
-			labelErrorName.setText(errors.get("name"));
-		}
+		// Refatorado implementacao para operacao ternaria - inicio
+		labelErrorName.setText(fields.contains("name") ? errors.get("name"):"");	
+		labelErrorEmail.setText(fields.contains("email") ? errors.get("email"):"");	
+		labelErrorBirthDate.setText(fields.contains("birthDate") ? errors.get("birthDate") : "");
+		labelErrorBaseSalary.setText(fields.contains("baseSalary") ? errors.get("baseSalary") : "");	
+		// Refatorado implementacao para operacao ternaria - fim
 	}
-	
+
 	private void initializeComboBoxDepartment() {
-		Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>(){
+		Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>() {
 			@Override
 			protected void updateItem(Department item, boolean empty) {
-				super.updateItem(item,empty);
+				super.updateItem(item, empty);
 				setText(empty ? "" : item.getName());
 			}
 		};
-		
+
 		comboBoxDepartment.setCellFactory(factory);
 		comboBoxDepartment.setButtonCell(factory.call(null));
 	}
