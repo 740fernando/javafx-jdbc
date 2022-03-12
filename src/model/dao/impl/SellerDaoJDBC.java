@@ -71,8 +71,8 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement st = null;
 		try {
 			StringBuilder query = new StringBuilder();
-			query.append("UPDATE seller SET ");
-			query.append("Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?,DepartmentId = ?");
+			query.append("UPDATE seller ");
+			query.append("SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?,DepartmentId = ? ");
 			query.append("WHERE Id = ?");
 
 			st = conn.prepareStatement(query.toString());
@@ -100,7 +100,7 @@ public class SellerDaoJDBC implements SellerDao {
 
 		try {
 
-			query.append("DELETE FROM seller");
+			query.append("DELETE FROM seller ");
 			query.append("WHERE id=?");
 
 			st = conn.prepareStatement(query.toString());

@@ -108,6 +108,7 @@ public class DepartmentFormController implements Initializable {
 		}
 		obj.setName(txtName.getText());
 		
+		
 		if(exception.getErrors().size()>0) {
 			throw exception;
 		}
