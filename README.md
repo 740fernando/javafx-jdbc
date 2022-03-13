@@ -1,7 +1,6 @@
 # Objetivo geral:
-- Introduzir o aluno ao desenvolvimento de aplicações JavaFX com JDBC
-- Permitir que o aluno conheça os fundamentos e a utilização das ferramentas, de modo que ele possa
-depois prosseguir estudando, de forma confortável, as especificidades que desejar
+- Desenvolvimento de aplicação JavaFX com JDBC
+- Conhecer os fundamentos e a utilização das ferramentas.
 
 <strong>REQUISITOS</strong>: OO & Lambda & JDBC & JavaFX
 
